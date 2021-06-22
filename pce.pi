@@ -1,0 +1,122 @@
+%
+% Path Computation Element
+%
+%
+import planner.
+import nets.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Caminhos entre Origem e Destino
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+% Retorna o melhor caminho entre uma origem e um destino
+% table
+caminhos(O,D) = Resp =>
+    Resp = findall(Caminho,caminho(O,D,Caminho,[],_C)).
+    
+%
+% Calcula um caminho entre uma origem e um destino
+table
+caminho(X,Y,Path,_Tmp,C) ?=>
+    not membchk(X,Path),
+    Path = [X,Y],
+    edge(X,Y),
+    C = 1.
+caminho(X,Y,Path,Tmp,C) =>
+    X != Y,
+    Path = [X|Path1],
+    Tmp1 = [X|Tmp],
+    edge(X,Z),
+    not membchk(Z,Tmp),
+    caminho(Z,Y,Path1,Tmp1,C1),
+    C = C1+1.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Capacidade de Rede
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%
+% Altera a capacidade conforme a demanda
+% Se tiver capaciadade, retorna a nova topologia,
+% senão falha!!
+capacidade(Caminho,Demanda,Topo) = Topo2 =>
+    O = Caminho[1],
+    Topo2 = copy_term(Topo),
+    foreach (I in 2..Caminho.length)
+        D = Caminho[I],
+        II = edgeN(O,D),
+        if (Demanda > Topo2[II,3]) then
+            fail
+        end,
+        Topo2[II,3] := Topo2[II,3] - Demanda,
+        O := D,
+    end.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       Planner
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+final([[],_Caminhos,Topo]) => println('estado final:'), println(Topo), true.
+
+action([Demandas,Caminhos,Topo],ProximoEstado,Acao,CustoAcao) =>
+    member(D,1..Demandas.len()),
+    ListaCaminhos = caminhos(Demandas[D,2],Demandas[D,3]),
+    member(LC,1..ListaCaminhos.len()),
+    ProximaTopo = capacidade(ListaCaminhos[LC],Demandas[D,4],Topo),
+    Acao = $demanda(Demandas[D],ListaCaminhos[LC]),
+    CustoAcao = 1,
+    ProximasDemandas = delete(Demandas,Demandas[D]),
+    ProximosCaminhos = [Demandas[D] | Caminhos],
+    ProximoEstado = [ProximasDemandas,ProximosCaminhos,ProximaTopo].
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%       M A I N
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+main =>
+    %
+    % Qual topologia e demanda que serão carregadas?
+    print("Qual topologia/demanda? "),
+    Ops = read_int(),
+    %
+    % Carrega a rede, nós e demandas
+    Topo = net(Ops),
+    Demandas = demandas(Ops),
+
+    %
+    % Obtem todos os caminhos para cada uma das demandas
+    D = Demandas.length,
+    ListaCaminhos = new_list(D),
+    foreach (I in 1..D)
+        ListaCaminhos[I] = caminhos(Demandas[I,2],Demandas[I,3]),
+    end,
+
+    println('Topo:'), println(Topo),
+    println('Demandas:'), println(Demandas),
+    println('Lista de Caminhos:'),println(ListaCaminhos),
+    println(' '),
+
+    %
+    % Caminhos a serem utilizados
+    Caminhos = [],
+
+    %
+    % Estado inicial
+    EstadoAtual = [Demandas,Caminhos,Topo],
+
+    %
+    % Inseri todas as demandas na rede!!
+    plan(EstadoAtual,Plano),
+    % plan_unbounded(EstadoAtual,Plano),
+    println(Plano),
+    true.

@@ -1,0 +1,197 @@
+module nets.
+
+%
+% Módulo para definir as redes de teste e os tráfegos
+%
+
+net(N) = Topo =>
+    %
+    % Topologias
+    % [pto_A,pto_B,largura_banda]
+    %
+    % A matrix de tráfego (Net) só é definido em um sentido
+    %
+    if (N == 1 || N == 2 || N == 3 || N == 4) then
+        % Largura de banda em Mb/s
+        Topo = {[r1,r2,100],
+                [r1,r3,100],
+                [r2,r3,100]}
+    elseif (N == 5 || N == 6 || N == 7 || N == 8) then
+        % Largura de banda em Mb/s
+        Topo = {[sp,rj,10_000],
+                [sp,pr, 5_000],
+                [pr,sc, 5_000],
+                [sp,go, 5_000],
+                [rj,sc, 5_000],
+                [mg,go, 5_000],
+                [rj,mg, 5_000]}
+    end,
+
+    % Configura Topo como global para obter o Shortest Path
+    get_global_map().put(topo, Topo).
+
+
+demandas(N) = Demandas =>
+    % [demanda,pto_A,pto_B,largura_banda]
+    if N == 1 then
+        Demandas = [[r1_r2_1,r1,r2,10],
+                    [r1_r2_2,r1,r2,10],
+                    [r3_r2_1,r3,r2,10]]
+    elseif N == 2 then
+        Demandas = [[r1_r2_1,r1,r2,90],
+                    [r1_r2_2,r1,r2,20],
+                    [r3_r2_1,r3,r2,80],
+                    [r3_r2_2,r3,r2, 5]]
+    elseif N == 3 then
+        Demandas = [[r2_r3_1,r2,r3,70],
+                    [r1_r2_1,r1,r2,20],
+                    [r1_r2_2,r1,r2,45],
+                    [r1_r2_3,r1,r2,45]]
+    elseif N == 4 then
+        Demandas = [[r2_r3_1,r2,r3,70],
+                    [r1_r2_1,r1,r2,40],
+                    [r1_r2_2,r1,r2,45],
+                    [r1_r2_3,r1,r2,45]]
+    elseif N == 5 then
+        Demandas = [[ 1,sp,rj,1_000],
+                    [ 2,sp,rj,1_000],
+                    [ 3,sp,pr,  500],
+                    [ 4,sp,go,  500],
+                    [ 5,mg,pr,  250],
+                    [ 6,sc,go,  250],
+                    [ 7,pr,rj,  500],
+                    [ 8,pr,go,  250],
+                    [ 9,rj,sc,  500],
+                    [10,mg,go,  250],
+                    [11,pr,sp,1_000],
+                    [12,sc,rj,  250],
+                    [13,rj,mg,1_000],
+                    [14,sp,rj,  500],
+                    [15,sp,go,  250],
+                    [16,go,mg,  500],
+                    [17,go,sc,  500],
+                    [18,rj,sp,1_000],
+                    [19,sp,rj,1_000],
+                    [20,go,sc,  250]]
+    elseif N == 6 then
+        Demandas = [[ 1,sp,rj,1_000],
+                    [ 2,sp,rj,1_000],
+                    [ 3,sp,pr,  500],
+                    [ 4,sp,go,  500],
+                    [ 5,mg,pr,  250],
+                    [ 6,sc,go,  250],
+                    [ 7,pr,rj,  500],
+                    [ 8,pr,go,  250],
+                    [ 9,rj,sc,  500],
+                    [10,mg,go,  250],
+                    [11,pr,sp,1_000],
+                    [12,sc,rj,  250],
+                    [13,rj,mg,1_000],
+                    [14,sp,rj,  500],
+                    [15,sp,go,  250],
+                    [16,go,mg,  500],
+                    [17,go,sc,  500],
+                    [18,rj,sp,1_000],
+                    [19,sp,rj,1_000],
+                    [20,go,sc,  250],
+                    [21,go,mg,  500],
+                    [22,mg,sc,  500],
+                    [23,sp,mg,1_000],
+                    [24,pr,mg,  500],
+                    [25,pr,rj,  500],
+                    [26,go,rj,  500],
+                    [27,pr,sp,1_000],
+                    [28,sp,rj,1_000],
+                    [29,pr,sp,  500],
+                    [30,pr,mg,  500]]
+    elseif N == 7 then
+        Demandas = [[ 1,sp,rj,1_000],
+                    [ 2,sp,rj,1_000],
+                    [ 3,sp,pr,  500],
+                    [ 4,sp,go,  500],
+                    [ 5,mg,pr,  250],
+                    [ 6,sc,go,  250],
+                    [ 7,pr,rj,  500],
+                    [ 8,pr,go,  250],
+                    [ 9,rj,sc,  500],
+                    [10,mg,go,  250],
+                    [11,pr,sp,1_000],
+                    [12,sc,rj,  250],
+                    [13,rj,mg,1_000],
+                    [14,sp,rj,  500],
+                    [15,sp,go,  250],
+                    [16,go,mg,  500],
+                    [17,go,sc,  500],
+                    [18,rj,sp,1_000],
+                    [19,sp,rj,1_000],
+                    [20,go,sc,  250],
+                    [21,go,mg,  500],
+                    [22,mg,sc,  500],
+                    [23,sp,mg,1_000],
+                    [24,pr,mg,  500],
+                    [25,pr,rj,  500],
+                    [26,go,rj,  500],
+                    [27,pr,sp,1_000],
+                    [28,sp,rj,1_000],
+                    [29,pr,sp,  500],
+                    [30,pr,mg,  500],
+                    [31,sc,go,  500],
+                    [32,sc,pr,  250],
+                    [33,pr,go,  250],
+                    [34,rj,sc,  500],
+                    [35,sp,rj,1_000]]
+    elseif N == 8 then
+        Demandas = [[ 1,sp,rj,1_000],
+                    [ 2,sp,rj,1_000],
+                    [ 3,sp,pr,  500],
+                    [ 4,sp,go,  500],
+                    [ 5,mg,pr,  250],
+                    [ 6,sc,go,  250],
+                    [ 7,pr,rj,  500],
+                    [ 8,pr,go,  250],
+                    [ 9,rj,sc,  500],
+                    [10,mg,go,  250],
+                    [11,pr,sp,1_000],
+                    [12,sc,rj,  250],
+                    [13,rj,mg,1_000],
+                    [14,sp,rj,  500],
+                    [15,sp,go,  250],
+                    [16,go,mg,  500],
+                    [17,go,sc,  500],
+                    [18,rj,sp,1_000],
+                    [19,sp,rj,1_000],
+                    [20,go,sc,  250],
+                    [21,go,mg,  500],
+                    [22,mg,sc,  500],
+                    [23,sp,mg,1_000],
+                    [24,pr,mg,  500],
+                    [25,pr,rj,  500],
+                    [26,go,rj,  500],
+                    [27,pr,sp,1_000],
+                    [28,sp,rj,1_000],
+                    [29,pr,sp,  500],
+                    [30,pr,mg,  500],
+                    [31,sc,go,  500],
+                    [32,sc,pr,  250],
+                    [33,pr,go,  250],
+                    [34,rj,sc,  500],
+                    [35,sp,rj,1_000],
+                    [36,rj,sc,  250],
+                    [37,sp,mg,  250],
+                    [38,sc,mg,  250],
+                    [39,pr,rj,  250],
+                    [40,pr,go,  250]]
+    end.
+
+% Retorna uma aresta a partir da topologia de toda a rede
+% É usado para procurar os caminhos possíveis entre uma origem e um destino
+%
+table
+edge(O,D) =>
+    T = get_global_map().get(topo).to_list(),
+    (member([O,D,_LB],T);member([D,O,_LB],T)).
+
+table
+edgeN(O,D) = I =>
+    T = get_global_map().get(topo).to_list(),
+    (nth(I,T,[O,D,_LB]);nth(I,T,[D,O,_LB])).
